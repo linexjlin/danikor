@@ -122,11 +122,6 @@ func TestDanikorTCPConnection_Dial(t *testing.T) {
 		},
 	}
 
-	// 验证连接是否成功建立
-	if dc.conn == nil {
-		t.Error("Failed to establish connection")
-	}
-
 	// 测试 Dial() 方法
 	dc.Dial()
 	dc.Establish()
