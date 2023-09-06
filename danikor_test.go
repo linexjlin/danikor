@@ -118,7 +118,11 @@ func TestDanikorTCPConnection_Dial(t *testing.T) {
 	dc := &DanikorTCPConnection{
 		address: listener.Addr().String(),
 		receiveCallBack: func(ansData AnsData) {
-			fmt.Println("ansData:", ansData)
+			fmt.Println("mid:", string(ansData.MID))
+			switch ansData.MID {
+			case "0203":
+				fmt.Println(ansData.Torque.Pset, ansData.Torque.IsCurveStart, ansData.Torque.IsCurveEnd)
+			}
 		},
 	}
 
