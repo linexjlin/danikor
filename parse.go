@@ -9,13 +9,14 @@ import (
 
 // AnsData represents the structure of the AnsData packet
 type AnsData struct {
-	Header  byte
-	DataLen uint32
-	AnsMode byte
-	MID     string
-	Data    []byte
-	Torque  DanitorTorque
-	Tailer  byte
+	Header       byte
+	DataLen      uint32
+	AnsMode      byte
+	MID          string
+	Data         []byte
+	Torque       DanitorTorque
+	TorqueResult *DanitorTorqueResult
+	Tailer       byte
 }
 
 // UnmarshalBinary implements the encoding.BinaryUnmarshaler interface
@@ -29,6 +30,11 @@ func (a *AnsData) UnmarshalBinary(data []byte) error {
 	if a.MID == "0203" {
 		a.Torque = parseTorqueData(string(a.Data))
 	}
+
+	if a.MID == "0202" {
+		a.TorqueResult = parseTorqueResult(string(a.Data))
+	}
+
 	return nil
 }
 
@@ -97,4 +103,91 @@ func parseTorqueData(str string) DanitorTorque {
 	}
 
 	return data
+}
+
+type DanitorTorqueResult struct {
+	FinalTorqueValue  string
+	FinalAngleMonitor string
+	FinalTime         string
+	FinalAngleFinal   string
+	FinalStatus       string
+	NgCode            string
+	StageResults      map[string]StageResult
+	Status            map[string]string
+}
+
+type StageResult struct {
+	Torque float64
+	Angle  float64
+	Time   float64
+	Status string
+}
+
+func parseTorqueResult(str string) *DanitorTorqueResult {
+	result := &DanitorTorqueResult{
+		StageResults: make(map[string]StageResult),
+		Status:       make(map[string]string),
+	}
+
+	pairs := strings.Split(str, ";")
+	for _, pair := range pairs {
+		values := strings.Split(pair, "=")
+		if len(values) == 2 {
+			key := values[0]
+			value := values[1]
+			switch key {
+			case "00010":
+				fields := strings.Split(value, ",")
+				if len(fields) >= 4 {
+					result.FinalTorqueValue = fields[0]
+					result.FinalAngleMonitor = fields[1]
+					result.FinalTime = fields[2]
+					result.FinalAngleFinal = fields[3]
+				}
+			case "00011":
+				result.FinalStatus = value
+			case "00012":
+				result.NgCode = value
+			default:
+				fmt.Println("key:", key, "value:", value)
+				//key: 01030 3 is stageKey value: 0.013,1257.069,3.000(Torque,Angle,Time),
+				if len(key) >= 5 && key[:3] == "010" && strings.HasSuffix(key, "0") { //value
+					stageKey := key[3:4]
+					fmt.Println("stage:", stageKey)
+					//split value to get Torque,Angle,Time
+					values := strings.Split(value[5:], ",")
+					if len(values) == 3 {
+						torque, err := strconv.ParseFloat(values[0], 64)
+						if err != nil {
+							// handle error
+						}
+						angle, err := strconv.ParseFloat(values[1], 64)
+						if err != nil {
+							// handle error
+						}
+						time, err := strconv.ParseFloat(values[2], 64)
+						if err != nil {
+							// handle error
+						}
+						stageResult := StageResult{
+							Torque: torque,
+							Angle:  angle,
+							Time:   time,
+						}
+						result.StageResults[stageKey] = stageResult
+					}
+				}
+
+				if len(key) >= 5 && key[:3] == "010" && strings.HasSuffix(key, "1") {
+					stageKey := key[3:4]
+					fmt.Println("status stage:", stageKey)
+					result.Status[stageKey] = value
+
+				}
+
+			}
+		}
+	}
+
+	return result
 }

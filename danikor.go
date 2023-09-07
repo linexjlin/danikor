@@ -1,6 +1,7 @@
 package danikor
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -77,6 +78,26 @@ func (dc *DanikorTCPConnection) Establish() {
 	showData(response[:n])
 }
 
+func (dc *DanikorTCPConnection) SubscribeResultData() {
+	data := []byte{0x02, 0x00, 0x00, 0x00, 0x05, 0x52, 0x30, 0x32, 0x30, 0x32, 0x03} //mid 0203 实时曲线数据
+
+	_, err := dc.conn.Write(data)
+	if err != nil {
+		fmt.Println("Error sending data:", err)
+		return
+	}
+
+	// Receive and print the response
+	response := make([]byte, 1024)
+	n, err := dc.conn.Read(response)
+	if err != nil {
+		fmt.Println("Error receiving response:", err)
+		return
+	}
+	fmt.Println("SubscribeResultData receive:", hex.EncodeToString(response[:n]))
+	showData(response[:n])
+}
+
 func (dc *DanikorTCPConnection) SubscribeRealTimeData() {
 	data := []byte{0x02, 0x00, 0x00, 0x00, 0x05, 0x52, 0x30, 0x32, 0x30, 0x33, 0x03} //mid 0203 实时曲线数据
 
@@ -124,7 +145,9 @@ func (dc *DanikorTCPConnection) StartReceiveData() {
 			return
 		}
 		//showData(response[:n])
+		//fmt.Println(hex.EncodeToString(response[:n]))
 		ansData := parseData(response[:n])
+
 		dc.receiveCallBack(ansData)
 		//fmt.Println("xxxx", hex.EncodeToString(response[:n]))
 	}
