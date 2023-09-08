@@ -128,6 +128,7 @@ func TestDanikorTCPConnection_Dial(t *testing.T) {
 			case "0203":
 				fmt.Println("realtime torque:", ansData.Torque.Pset, ansData.Torque.IsCurveStart, ansData.Torque.IsCurveEnd)
 			case "0202":
+				fmt.Printf("Ng Reason:%s\n", ansData.TorqueResult.ShowNgCode())
 				fmt.Println("torque result:", ansData.TorqueResult.FinalAngleFinal)
 			}
 		},

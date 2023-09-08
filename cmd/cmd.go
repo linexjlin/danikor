@@ -14,6 +14,7 @@ func main() {
 			fmt.Printf("torque  %+v\n", ansData)
 			fmt.Println("Pset:", ansData.Torque.Pset, ansData.Torque.IsCurveStart, ansData.Torque.IsCurveEnd)
 		case "0202":
+			fmt.Printf("Ng Reason:%s\n", ansData.TorqueResult.ShowNgCode())
 			fmt.Printf("torque result %+v\n", ansData.TorqueResult)
 		}
 	})

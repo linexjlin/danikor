@@ -116,6 +116,76 @@ type DanitorTorqueResult struct {
 	Status            map[string]string
 }
 
+/*
+0x00=无定意；
+0x01=最终扭矩过大；
+0x02=最终扭矩过大；
+0x03=最终角度过大；
+0x04=最终角度过小；
+0xn1=第 n 步扭矩过大；
+0xn2=第 n 步扭矩过大；
+1<n<5
+0x90=总时间超限；
+*/
+func (dr *DanitorTorqueResult) ShowNgCode() string {
+	r := ""
+	switch dr.NgCode {
+	case "00":
+		r = "无定意"
+	case "01":
+		r = "最终扭矩过大"
+	case "02":
+		r = "最终扭矩过大"
+	case "03":
+		r = "最终角度过大"
+	case "04":
+		r = "最终角度过小"
+	case "90":
+		r = "总时间超限"
+	default:
+		if strings.HasSuffix(dr.NgCode, "1") {
+			r = fmt.Sprintf("第 %s 步扭矩过大", string(dr.NgCode[0]))
+		}
+		if strings.HasSuffix(dr.NgCode, "2") {
+			r = fmt.Sprintf("第 %s 步扭矩过大", string(dr.NgCode[0]))
+		}
+	}
+	return r
+}
+
+/*
+0=无定意；
+1=OK
+2=扭矩过大；
+3=扭矩过小；
+4=角度过大；
+5=角度过小；
+6=时间过长；
+7=时间过短；
+*/
+func (dr *DanitorTorqueResult) ShowStageStatus(code string) string {
+	r := ""
+	switch code {
+	case "0":
+		r = "无定意"
+	case "1":
+		r = "OK"
+	case "2":
+		r = "扭矩过大"
+	case "3":
+		r = "扭矩过小"
+	case "4":
+		r = "角度过大"
+	case "5":
+		r = "角度过小"
+	case "6":
+		r = "时间过长"
+	case "7":
+		r = "时间过短"
+	}
+	return r
+}
+
 type StageResult struct {
 	Torque float64
 	Angle  float64
