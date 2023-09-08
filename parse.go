@@ -117,6 +117,24 @@ type DanitorTorqueResult struct {
 }
 
 /*
+0=无定意；
+1=OK，拧紧合格；
+2=NG，拧紧不合格；
+*/
+func (dr *DanitorTorqueResult) ShowFinalStatus() string {
+	switch dr.FinalStatus {
+	case "0":
+		return "无定意"
+	case "1":
+		return "OK，拧紧合格"
+	case "2":
+		return "NG，拧紧不合格"
+	default:
+		return "未知状态"
+	}
+}
+
+/*
 0x00=无定意；
 0x01=最终扭矩过大；
 0x02=最终扭矩过大；
