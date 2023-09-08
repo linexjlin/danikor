@@ -45,9 +45,10 @@ func TestDanikorTCPConnection_Dial(t *testing.T) {
 				}
 				fmt.Println("server receive package:", hex.EncodeToString(recData[:n]))
 				switch hex.EncodeToString(recData[:n]) {
-				case "0200000005523030303103", "0200000005523032303303", "0200000005523032303203": //estabish package, subscribe realtime data package, subscribe result package
+				case "0200000005523030303103", "0200000005523032303303", "0200000005523032303203", "020000000A573031303330313d313b03": //estabish package, subscribe realtime data package, subscribe result package,chose pset package
 					fmt.Println("mid 001 建立通信数据包, or mid 0203 订阅实时曲线数据")
 					rspDataStr := "0200000008413030303141434b03"
+
 					if err = sendHexString(conn, rspDataStr); err != nil {
 						return
 					}

@@ -11,14 +11,16 @@ func main() {
 		fmt.Println("ansMid:", string(ansData.MID))
 		switch ansData.MID {
 		case "0203":
-			fmt.Println(ansData.Torque.Pset, ansData.Torque.IsCurveStart, ansData.Torque.IsCurveEnd)
+			fmt.Printf("torque  %+v\n", ansData)
+			fmt.Println("Pset:", ansData.Torque.Pset, ansData.Torque.IsCurveStart, ansData.Torque.IsCurveEnd)
 		case "0202":
-			fmt.Println("torque result:", ansData.TorqueResult.FinalAngleFinal)
+			fmt.Printf("torque result %+v\n", ansData.TorqueResult)
 		}
 	})
 
 	dc.Dial()
 	dc.Establish()
+	dc.ChosePset(2)
 	dc.SubscribeRealTimeData()
 	dc.SubscribeResultData()
 	dc.ForwardTurn()

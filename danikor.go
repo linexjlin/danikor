@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -151,4 +152,34 @@ func (dc *DanikorTCPConnection) StartReceiveData() {
 		dc.receiveCallBack(ansData)
 		//fmt.Println("xxxx", hex.EncodeToString(response[:n]))
 	}
+}
+
+func (dc *DanikorTCPConnection) ChosePset(pset int) error {
+	if pset < 1 || pset > 8 {
+		return fmt.Errorf("pset number not support %d", pset)
+	}
+	str := fmt.Sprintf("W010301=%d;", pset)
+	head := "020000000A"
+	tail := "03"
+	hexStr := head + fmt.Sprintf("%x", str) + tail
+	data, err := hex.DecodeString(strings.ReplaceAll(hexStr, " ", ""))
+	if err != nil {
+		return err
+	}
+	_, err = dc.conn.Write(data)
+	if err != nil {
+		fmt.Println("Error sending data:", err)
+		return err
+	}
+
+	// Receive and print the response
+	response := make([]byte, 1024)
+	n, e := dc.conn.Read(response)
+	if e != nil {
+		fmt.Println("Error receiving response:", e)
+		return e
+	}
+	fmt.Printf("%x", response[:n])
+	showData(response[:n])
+	return nil
 }
